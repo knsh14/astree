@@ -146,7 +146,7 @@ func commentGroup(parentPrefix string, prefixes []string, node *ast.CommentGroup
 		fmt.Printf("%s%sCommentGroup = nil\n", parentPrefix, prefixes[0])
 		return
 	}
-	fmt.Printf("%s%sCommentGroup\n", parentPrefix, prefixes[0])
+	fmt.Printf("%s%sCommentGroup (length=%d)\n", parentPrefix, prefixes[0], len(node.List))
 	for i, comment := range node.List {
 		if i == len(node.List)-1 {
 			Tree(parentPrefix+prefixes[1]+middleLine, tailPrefixes, comment)
