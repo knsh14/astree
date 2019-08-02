@@ -20,8 +20,15 @@ func Tree(parentPrefix string, prefixes []string, node ast.Node) {
 	switch n := node.(type) {
 	case *ast.File:
 		file(parentPrefix, prefixes, n)
+
+	// Spec
 	case *ast.ImportSpec:
 		importSpec(parentPrefix, prefixes, n)
+	case *ast.ValueSpec:
+		valueSpec(parentPrefix, prefixes, n)
+	case *ast.TypeSpec:
+		typeSpec(parentPrefix, prefixes, n)
+
 	case *ast.Ident:
 		ident(parentPrefix, prefixes, n)
 	case *ast.BasicLit:
@@ -65,6 +72,44 @@ func importSpec(parentPrefix string, prefixes []string, node *ast.ImportSpec) {
 	Tree(parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Name)
 	fmt.Printf("%s%s ├── Path\n", parentPrefix, prefixes[1])
 	Tree(parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Path)
+	fmt.Printf("%s%s └── Comment\n", parentPrefix, prefixes[1])
+	Tree(parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Comment)
+}
+
+func valueSpec(parentPrefix string, prefixes []string, node *ast.ValueSpec) {
+	fmt.Printf("%s%sValueSpec\n", parentPrefix, prefixes[0])
+	fmt.Printf("%s%s ├── Doc\n", parentPrefix, prefixes[1])
+	Tree(parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Doc)
+	fmt.Printf("%s%s ├── Names (length=%d)\n", parentPrefix, prefixes[1], len(node.Names))
+	for i := range node.Names {
+		if i == len(node.Names)-1 {
+			Tree(parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Names[i])
+		} else {
+			Tree(parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Names[i])
+		}
+	}
+	fmt.Printf("%s%s ├── Expr\n", parentPrefix, prefixes[1])
+	// TODO: implement
+	fmt.Printf("%s%s ├── Values (length=%d)\n", parentPrefix, prefixes[1], len(node.Values))
+	for i := range node.Values {
+		if i == len(node.Values)-1 {
+			Tree(parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Values[i])
+		} else {
+			Tree(parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Values[i])
+		}
+	}
+	fmt.Printf("%s%s └── Comment\n", parentPrefix, prefixes[1])
+	Tree(parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Comment)
+}
+
+func typeSpec(parentPrefix string, prefixes []string, node *ast.TypeSpec) {
+	fmt.Printf("%s%sTypeSpec\n", parentPrefix, prefixes[0])
+	fmt.Printf("%s%s ├── Doc\n", parentPrefix, prefixes[1])
+	Tree(parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Doc)
+	fmt.Printf("%s%s ├── Name\n", parentPrefix, prefixes[1])
+	Tree(parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Name)
+	fmt.Printf("%s%s ├── Expr\n", parentPrefix, prefixes[1])
+	// TODO: implement
 	fmt.Printf("%s%s └── Comment\n", parentPrefix, prefixes[1])
 	Tree(parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Comment)
 }
