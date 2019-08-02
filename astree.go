@@ -37,6 +37,14 @@ func Tree(parentPrefix string, prefixes []string, node ast.Node) {
 		commentGroup(parentPrefix, prefixes, n)
 	case *ast.Comment:
 		comment(parentPrefix, prefixes, n)
+
+	// Decls
+	case *ast.GenDecl:
+		genDecl(parentPrefix, prefixes, n)
+	case *ast.BadDecl:
+		badDecl(parentPrefix, prefixes, n)
+	case *ast.FuncDecl:
+		funcDecl(parentPrefix, prefixes, n)
 	}
 }
 
@@ -147,10 +155,53 @@ func commentGroup(parentPrefix string, prefixes []string, node *ast.CommentGroup
 		}
 	}
 }
+
 func comment(parentPrefix string, prefixes []string, node *ast.Comment) {
 	if node == nil {
 		return
 	}
 	fmt.Printf("%s%sComment\n", parentPrefix, prefixes[0])
 	fmt.Printf("%s%s └── Text = %s\n", parentPrefix, prefixes[1], node.Text)
+}
+
+func genDecl(parentPrefix string, prefixes []string, node *ast.GenDecl) {
+	if node == nil {
+		return
+	}
+	fmt.Printf("%s%sGenDecl\n", parentPrefix, prefixes[0])
+	fmt.Printf("%s%s ├── Doc\n", parentPrefix, prefixes[1])
+	Tree(parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Doc)
+	fmt.Printf("%s%s ├── Tok = %s\n", parentPrefix, prefixes[1], node.Tok)
+	fmt.Printf("%s%s └── Specs (length=%d)\n", parentPrefix, prefixes[1], len(node.Specs))
+	for i := range node.Specs {
+		if i == len(node.Specs)-1 {
+			Tree(parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Specs[i])
+		} else {
+			Tree(parentPrefix+prefixes[1]+tailLine, middlePrefixes, node.Specs[i])
+		}
+	}
+}
+
+func badDecl(parentPrefix string, prefixes []string, node *ast.BadDecl) {
+	if node == nil {
+		return
+	}
+	fmt.Printf("%s%sBadDecl\n", parentPrefix, prefixes[0])
+}
+
+func funcDecl(parentPrefix string, prefixes []string, node *ast.FuncDecl) {
+	if node == nil {
+		return
+	}
+	fmt.Printf("%s%sFuncDecl\n", parentPrefix, prefixes[0])
+	fmt.Printf("%s%s ├── Doc\n", parentPrefix, prefixes[1])
+	Tree(parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Doc)
+	fmt.Printf("%s%s ├── Recv\n", parentPrefix, prefixes[1])
+	Tree(parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Recv)
+	fmt.Printf("%s%s ├── Name\n", parentPrefix, prefixes[1])
+	Tree(parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Name)
+	fmt.Printf("%s%s ├── Type\n", parentPrefix, prefixes[1])
+	Tree(parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Type)
+	fmt.Printf("%s%s └── Body\n", parentPrefix, prefixes[1])
+	Tree(parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Body)
 }
