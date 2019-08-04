@@ -1,29 +1,31 @@
 package astree
 
 import (
+	"bytes"
 	"go/parser"
 	"go/token"
 	"testing"
 )
 
 func TestFile(t *testing.T) {
-	src := `
-package main
+	src := `package main
 
 import "fmt"
 
 var foo int
 
 func main() {
-	f.Println("hello world")
+	foo = 1
+	fmt.Println(foo)
 }
 `
 
-	// Create the AST by parsing src.
 	fset := token.NewFileSet() // positions are relative to fset
 	f, err := parser.ParseFile(fset, "src.go", src, 0)
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
-	Tree("", []string{"", ""}, f)
+	b := &bytes.Buffer{}
+	Tree(b, "", []string{"", ""}, f)
+	// its ok if no panic by invalid memory address error
 }
