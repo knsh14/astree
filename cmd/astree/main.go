@@ -45,6 +45,6 @@ func main() {
 		fmt.Fprint(os.Stderr, err)
 		return
 	}
-	astree.Tree(os.Stdout, "", []string{"", ""}, f)
+	astree.Tree(os.Stdout, f)
 
 }

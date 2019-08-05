@@ -10,42 +10,42 @@ func file(w io.Writer, parentPrefix string, prefixes []string, node *ast.File) {
 	fmt.Fprintf(w, "%s%sFile\n", parentPrefix, prefixes[0])
 	fmt.Fprintf(w, "%s%s├── Doc\n", parentPrefix, prefixes[1])
 	if node.Doc != nil {
-		Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Doc)
+		tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Doc)
 	}
 	fmt.Fprintf(w, "%s%s├── Package = %v\n", parentPrefix, prefixes[1], node.Package)
 	fmt.Fprintf(w, "%s%s├── Name\n", parentPrefix, prefixes[1])
-	Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Name)
+	tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Name)
 	fmt.Fprintf(w, "%s%s├── Decls (length=%d)\n", parentPrefix, prefixes[1], len(node.Decls))
 	for i := range node.Decls {
 		if i < len(node.Decls)-1 {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Decls[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Decls[i])
 		} else {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Decls[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Decls[i])
 		}
 	}
 	fmt.Fprintf(w, "%s%s├── Scope\n", parentPrefix, prefixes[1])
 	fmt.Fprintf(w, "%s%s├── Imports (length=%d)\n", parentPrefix, prefixes[1], len(node.Imports))
 	for i := range node.Imports {
 		if i < len(node.Imports)-1 {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Imports[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Imports[i])
 		} else {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Imports[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Imports[i])
 		}
 	}
 	fmt.Fprintf(w, "%s%s├── Unresolved (length=%d)\n", parentPrefix, prefixes[1], len(node.Unresolved))
 	for i := range node.Unresolved {
 		if i < len(node.Unresolved)-1 {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Unresolved[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Unresolved[i])
 		} else {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Unresolved[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Unresolved[i])
 		}
 	}
 	fmt.Fprintf(w, "%s%s└── Unresolved (length=%d)\n", parentPrefix, prefixes[1], len(node.Comments))
 	for i := range node.Comments {
 		if i < len(node.Comments)-1 {
-			Tree(w, parentPrefix+prefixes[1]+tailLine, middlePrefixes, node.Comments[i])
+			tree(w, parentPrefix+prefixes[1]+tailLine, middlePrefixes, node.Comments[i])
 		} else {
-			Tree(w, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Comments[i])
+			tree(w, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Comments[i])
 		}
 	}
 }
@@ -57,7 +57,7 @@ func ident(w io.Writer, parentPrefix string, prefixes []string, node *ast.Ident)
 	fmt.Fprintf(w, "%s%s└── Obj\n", parentPrefix, prefixes[1])
 	if node.Obj != nil {
 	}
-	// Tree(w, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Obj)
+	// tree(w, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Obj)
 }
 
 func commentGroup(w io.Writer, parentPrefix string, prefixes []string, node *ast.CommentGroup) {
@@ -65,9 +65,9 @@ func commentGroup(w io.Writer, parentPrefix string, prefixes []string, node *ast
 	fmt.Fprintf(w, "%s%s├── List (length=%d)\n", parentPrefix, prefixes[1], len(node.List))
 	for i, comment := range node.List {
 		if i == len(node.List)-1 {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, comment)
+			tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, comment)
 		} else {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, comment)
+			tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, comment)
 		}
 	}
 }
@@ -84,18 +84,18 @@ func caseClause(w io.Writer, parentPrefix string, prefixes []string, node *ast.C
 	fmt.Fprintf(w, "%s%s├── List (length=%d)\n", parentPrefix, prefixes[1], len(node.List))
 	for i := range node.List {
 		if i < len(node.List)-1 {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.List[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.List[i])
 		} else {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.List[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.List[i])
 		}
 	}
 	fmt.Fprintf(w, "%s%s├── Colon = %v\n", parentPrefix, prefixes[1], node.Colon)
 	fmt.Fprintf(w, "%s%s└── Body (length=%d)\n", parentPrefix, prefixes[1], len(node.Body))
 	for i := range node.Body {
 		if i < len(node.Body)-1 {
-			Tree(w, parentPrefix+prefixes[1]+tailLine, middlePrefixes, node.Body[i])
+			tree(w, parentPrefix+prefixes[1]+tailLine, middlePrefixes, node.Body[i])
 		} else {
-			Tree(w, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Body[i])
+			tree(w, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Body[i])
 		}
 	}
 }
@@ -105,15 +105,15 @@ func commClause(w io.Writer, parentPrefix string, prefixes []string, node *ast.C
 	fmt.Fprintf(w, "%s%s├── Case = %v\n", parentPrefix, prefixes[1], node.Case)
 	fmt.Fprintf(w, "%s%s├── Comm\n", parentPrefix, prefixes[1])
 	if node.Comm != nil {
-		Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Comm)
+		tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Comm)
 	}
 	fmt.Fprintf(w, "%s%s├── Colon = %v\n", parentPrefix, prefixes[1], node.Colon)
 	fmt.Fprintf(w, "%s%s└── Body (length=%d)\n", parentPrefix, prefixes[1], len(node.Body))
 	for i := range node.Body {
 		if i == len(node.Body)-1 {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Body[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Body[i])
 		} else {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Body[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Body[i])
 		}
 	}
 }
@@ -123,7 +123,7 @@ func ellipsis(w io.Writer, parentPrefix string, prefixes []string, node *ast.Ell
 	fmt.Fprintf(w, "%s%s├── Ellipsis = %v\n", parentPrefix, prefixes[1], node.Ellipsis)
 	fmt.Fprintf(w, "%s%s└── Elt\n", parentPrefix, prefixes[1])
 	if node.Elt != nil {
-		Tree(w, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Elt)
+		tree(w, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Elt)
 	}
 }
 
@@ -131,25 +131,25 @@ func field(w io.Writer, parentPrefix string, prefixes []string, node *ast.Field)
 	fmt.Fprintf(w, "%s%sField\n", parentPrefix, prefixes[0])
 	fmt.Fprintf(w, "%s%s├── Doc\n", parentPrefix, prefixes[1])
 	if node.Doc != nil {
-		Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Doc)
+		tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Doc)
 	}
 	fmt.Fprintf(w, "%s%s├── Names (length=%d)\n", parentPrefix, prefixes[1], len(node.Names))
 	for i := range node.Names {
 		if i < len(node.Names)-1 {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Names[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Names[i])
 		} else {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Names[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Names[i])
 		}
 	}
 	fmt.Fprintf(w, "%s%s├── Type\n", parentPrefix, prefixes[1])
-	Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Type)
+	tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Type)
 	fmt.Fprintf(w, "%s%s├── Tag\n", parentPrefix, prefixes[1])
 	if node.Tag != nil {
-		Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Tag)
+		tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Tag)
 	}
 	fmt.Fprintf(w, "%s%s└── Comment\n", parentPrefix, prefixes[1])
 	if node.Comment != nil {
-		Tree(w, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Comment)
+		tree(w, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Comment)
 	}
 }
 
@@ -159,9 +159,9 @@ func fieldList(w io.Writer, parentPrefix string, prefixes []string, node *ast.Fi
 	fmt.Fprintf(w, "%s%s├── List (length=%d)\n", parentPrefix, prefixes[1], len(node.List))
 	for i := range node.List {
 		if i < len(node.List)-1 {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.List[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.List[i])
 		} else {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.List[i])
+			tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.List[i])
 		}
 	}
 	fmt.Fprintf(w, "%s%s└── Closing = %v\n", parentPrefix, prefixes[1], node.Closing)
@@ -176,18 +176,18 @@ func package2(w io.Writer, parentPrefix string, prefixes []string, node *ast.Pac
 	//count := 0
 	//for k, v := range node.Imports {
 	//	if count < len(node.Imports)-1 {
-	//		Tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, v)
+	//		tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, v)
 	//	} else {
-	//		Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, v)
+	//		tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, v)
 	//	}
 	//}
 	fmt.Fprintf(w, "%s%s└── Files (length = %d)\n", parentPrefix, prefixes[1], len(node.Files))
 	count := 0
 	for _, v := range node.Files {
 		if count < len(node.Files)-1 {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, v)
+			tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, v)
 		} else {
-			Tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, v)
+			tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, v)
 		}
 		count++
 	}

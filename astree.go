@@ -14,9 +14,12 @@ var (
 	middlePrefixes = []string{"├── ", "│   "}
 	tailPrefixes   = []string{"└── ", "    "}
 )
+func Tree(w io.Writer, node ast.Node) {
+    tree(w, "", []string{"", ""}, node)
+}
 
 // Tree desplays ast nodes like tree
-func Tree(w io.Writer, parentPrefix string, prefixes []string, node ast.Node) {
+func tree(w io.Writer, parentPrefix string, prefixes []string, node ast.Node) {
 	switch n := node.(type) {
 	case *ast.File:
 		file(w, parentPrefix, prefixes, n)
