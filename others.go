@@ -101,7 +101,7 @@ func caseClause(w io.Writer, parentPrefix string, prefixes []string, node *ast.C
 }
 
 func commClause(w io.Writer, parentPrefix string, prefixes []string, node *ast.CommClause) {
-	fmt.Fprintf(w, "%s%sCaseClause\n", parentPrefix, prefixes[0])
+	fmt.Fprintf(w, "%s%sCommClause\n", parentPrefix, prefixes[0])
 	fmt.Fprintf(w, "%s%s├── Case = %v\n", parentPrefix, prefixes[1], node.Case)
 	fmt.Fprintf(w, "%s%s├── Comm\n", parentPrefix, prefixes[1])
 	if node.Comm != nil {
@@ -111,9 +111,9 @@ func commClause(w io.Writer, parentPrefix string, prefixes []string, node *ast.C
 	fmt.Fprintf(w, "%s%s└── Body (length=%d)\n", parentPrefix, prefixes[1], len(node.Body))
 	for i := range node.Body {
 		if i == len(node.Body)-1 {
-			tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Body[i])
+			tree(w, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Body[i])
 		} else {
-			tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Body[i])
+			tree(w, parentPrefix+prefixes[1]+tailLine, middlePrefixes, node.Body[i])
 		}
 	}
 }
