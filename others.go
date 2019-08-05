@@ -56,6 +56,7 @@ func ident(w io.Writer, parentPrefix string, prefixes []string, node *ast.Ident)
 	fmt.Fprintf(w, "%s%s├── Name = %s\n", parentPrefix, prefixes[1], node.Name)
 	fmt.Fprintf(w, "%s%s└── Obj\n", parentPrefix, prefixes[1])
 	if node.Obj != nil {
+		object(w, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Obj)
 	}
 	// tree(w, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Obj)
 }
@@ -171,24 +172,33 @@ func package2(w io.Writer, parentPrefix string, prefixes []string, node *ast.Pac
 	fmt.Fprintf(w, "%s%sPackage\n", parentPrefix, prefixes[0])
 	fmt.Fprintf(w, "%s%s├── Name = %s\n", parentPrefix, prefixes[1], node.Name)
 	fmt.Fprintf(w, "%s%s├── Scope\n", parentPrefix, prefixes[1])
-	//TODO: implement
-	//fmt.Fprintf(w, "%s%s├── Imports (length=%d)\n", parentPrefix, prefixes[1], len(node.Imports))
-	//count := 0
-	//for k, v := range node.Imports {
-	//	if count < len(node.Imports)-1 {
-	//		tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, v)
-	//	} else {
-	//		tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, v)
-	//	}
-	//}
-	fmt.Fprintf(w, "%s%s└── Files (length = %d)\n", parentPrefix, prefixes[1], len(node.Files))
+	fmt.Fprintf(w, "%s%s├── Imports (length=%d)\n", parentPrefix, prefixes[1], len(node.Imports))
 	count := 0
-	for _, v := range node.Files {
-		if count < len(node.Files)-1 {
-			tree(w, parentPrefix+prefixes[1]+middleLine, middlePrefixes, v)
+	for k, v := range node.Imports {
+		if count < len(node.Imports)-1 {
+			object(w, parentPrefix+prefixes[1]+middleLine, []string{middlePrefixes[0] + k + ":", middlePrefixes[1]}, v)
 		} else {
-			tree(w, parentPrefix+prefixes[1]+middleLine, tailPrefixes, v)
+			object(w, parentPrefix+prefixes[1]+middleLine, []string{tailPrefixes[0] + k + ":", tailPrefixes[1]}, v)
 		}
 		count++
 	}
+	fmt.Fprintf(w, "%s%s└── Files (length = %d)\n", parentPrefix, prefixes[1], len(node.Files))
+	count = 0
+	for k, v := range node.Files {
+		if count < len(node.Files)-1 {
+			tree(w, parentPrefix+prefixes[1]+tailLine, []string{middlePrefixes[0] + k + ":", middlePrefixes[1]}, v)
+		} else {
+			tree(w, parentPrefix+prefixes[1]+tailLine, []string{tailPrefixes[0] + k + ":", tailPrefixes[1]}, v)
+		}
+		count++
+	}
+}
+
+func object(w io.Writer, parentPrefix string, prefixes []string, node *ast.Object) {
+	fmt.Fprintf(w, "%s%sObject\n", parentPrefix, prefixes[0])
+	fmt.Fprintf(w, "%s%s├── Kind = %s\n", parentPrefix, prefixes[1], node.Kind)
+	fmt.Fprintf(w, "%s%s├── Name = %s\n", parentPrefix, prefixes[1], node.Name)
+	fmt.Fprintf(w, "%s%s├── Decl = %#v\n", parentPrefix, prefixes[1], node.Decl)
+	fmt.Fprintf(w, "%s%s├── Data = %#v\n", parentPrefix, prefixes[1], node.Data)
+	fmt.Fprintf(w, "%s%s└── Type = %#v\n", parentPrefix, prefixes[1], node.Type)
 }
