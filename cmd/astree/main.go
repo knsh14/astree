@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/knsh14/astree"
+	"github.com/morikuni/failure"
 )
 
 var (
@@ -29,22 +30,45 @@ func main() {
 	abs, err := filepath.Abs(args[0])
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
-		return
+		os.Exit(1)
 	}
 	stat, err := os.Stat(abs)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
-		return
+		os.Exit(1)
 	}
 	fs := token.NewFileSet()
 	if stat.IsDir() {
+		err = packages(fs, args[0])
+		if err != nil {
+			fmt.Fprint(os.Stderr, err)
+			os.Exit(1)
+		}
 		return
 	}
-	f, err := parser.ParseFile(fs, abs, nil, 0)
+	err = file(fs, args[0])
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
-		return
+		os.Exit(1)
 	}
-	astree.Tree(os.Stdout, f)
+}
 
+func packages(fs *token.FileSet, p string) error {
+	pkgs, err := parser.ParseDir(fs, p, func(fi os.FileInfo) bool {
+		return true
+	}, 0)
+	if err != nil {
+		return failure.Wrap(err, failure.Messagef("failed to parse directory:", p))
+	}
+	astree.Packages(os.Stdout, pkgs)
+	return nil
+}
+
+func file(fs *token.FileSet, p string) error {
+	f, err := parser.ParseFile(fs, p, nil, 0)
+	if err != nil {
+		return failure.Wrap(err, failure.Messagef("failed to parse file:", p))
+	}
+	astree.File(os.Stdout, f)
+	return nil
 }

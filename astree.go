@@ -14,8 +14,28 @@ var (
 	middlePrefixes = []string{"├── ", "│   "}
 	tailPrefixes   = []string{"└── ", "    "}
 )
-func Tree(w io.Writer, node ast.Node) {
-    tree(w, "", []string{"", ""}, node)
+
+// File prints AST of one file
+func File(w io.Writer, node *ast.File) {
+	tree(w, "", []string{"", ""}, node)
+}
+
+// Packages prints AST of result from go/parser.ParseDir
+func Packages(w io.Writer, pkgs map[string]*ast.Package) {
+	count := 0
+	for k, v := range pkgs {
+		if count < len(pkgs)-1 {
+			tree(w, "", []string{middlePrefixes[0] + k + ":", middlePrefixes[1]}, v)
+		} else {
+			tree(w, "", []string{tailPrefixes[0] + k + ":", tailPrefixes[1]}, v)
+		}
+		count++
+	}
+}
+
+// Node prints AST node
+func Node(w io.Writer, node *ast.File) {
+	tree(w, "", []string{"", ""}, node)
 }
 
 // Tree desplays ast nodes like tree
