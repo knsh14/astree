@@ -34,7 +34,7 @@ func Packages(w io.Writer, pkgs map[string]*ast.Package) {
 }
 
 // Node prints AST node
-func Node(w io.Writer, node *ast.File) {
+func Node(w io.Writer, node ast.Node) {
 	tree(w, "", []string{"", ""}, node)
 }
 
