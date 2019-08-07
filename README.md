@@ -11,7 +11,7 @@ go get -u github.com/knsh14/astree/cmd/astree
 # options
 
 # Example
-https://play.golang.org/p/Qt4OB1JsgS7
+https://play.golang.org/p/ucQjFbdeNcQ
 
 ```
 package main
@@ -41,6 +41,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	astree.Tree(os.Stdout, f)
+	astree.File(os.Stdout, f)
 }
 ```
