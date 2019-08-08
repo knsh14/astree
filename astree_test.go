@@ -26,6 +26,6 @@ func main() {
 		t.Fatal(err)
 	}
 	b := &bytes.Buffer{}
-	tree(b, "", []string{"", ""}, f)
+	tree(b, fset, "", []string{"", ""}, f)
 	// its ok if no panic by invalid memory address error
 }

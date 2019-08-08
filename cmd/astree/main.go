@@ -60,7 +60,7 @@ func packages(fs *token.FileSet, p string) error {
 	if err != nil {
 		return failure.Wrap(err, failure.Messagef("failed to parse directory:", p))
 	}
-	astree.Packages(os.Stdout, pkgs)
+	astree.Packages(os.Stdout, fs, pkgs)
 	return nil
 }
 
@@ -69,6 +69,6 @@ func file(fs *token.FileSet, p string) error {
 	if err != nil {
 		return failure.Wrap(err, failure.Messagef("failed to parse file:", p))
 	}
-	astree.File(os.Stdout, f)
+	astree.File(os.Stdout, fs, f)
 	return nil
 }
