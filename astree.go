@@ -2,6 +2,7 @@ package astree
 
 import (
 	"go/ast"
+	"go/token"
 	"io"
 )
 
@@ -16,154 +17,154 @@ var (
 )
 
 // File prints AST of one file
-func File(w io.Writer, node *ast.File) {
-	tree(w, "", []string{"", ""}, node)
+func File(w io.Writer, fs *token.FileSet, node *ast.File) {
+	tree(w, fs, "", []string{"", ""}, node)
 }
 
 // Packages prints AST of result from go/parser.ParseDir
-func Packages(w io.Writer, pkgs map[string]*ast.Package) {
+func Packages(w io.Writer, fs *token.FileSet, pkgs map[string]*ast.Package) {
 	count := 0
 	for k, v := range pkgs {
 		if count < len(pkgs)-1 {
-			tree(w, "", []string{middlePrefixes[0] + k + ":", middlePrefixes[1]}, v)
+			tree(w, fs, "", []string{middlePrefixes[0] + k + ":", middlePrefixes[1]}, v)
 		} else {
-			tree(w, "", []string{tailPrefixes[0] + k + ":", tailPrefixes[1]}, v)
+			tree(w, fs, "", []string{tailPrefixes[0] + k + ":", tailPrefixes[1]}, v)
 		}
 		count++
 	}
 }
 
 // Node prints AST node
-func Node(w io.Writer, node ast.Node) {
-	tree(w, "", []string{"", ""}, node)
+func Node(w io.Writer, fs *token.FileSet, node ast.Node) {
+	tree(w, fs, "", []string{"", ""}, node)
 }
 
 // Tree desplays ast nodes like tree
-func tree(w io.Writer, parentPrefix string, prefixes []string, node ast.Node) {
+func tree(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node ast.Node) {
 	switch n := node.(type) {
 	case *ast.File:
-		file(w, parentPrefix, prefixes, n)
+		file(w, fs, parentPrefix, prefixes, n)
 
 	// Spec
 	case *ast.ImportSpec:
-		importSpec(w, parentPrefix, prefixes, n)
+		importSpec(w, fs, parentPrefix, prefixes, n)
 	case *ast.ValueSpec:
-		valueSpec(w, parentPrefix, prefixes, n)
+		valueSpec(w, fs, parentPrefix, prefixes, n)
 	case *ast.TypeSpec:
-		typeSpec(w, parentPrefix, prefixes, n)
+		typeSpec(w, fs, parentPrefix, prefixes, n)
 
 	case *ast.Ident:
-		ident(w, parentPrefix, prefixes, n)
+		ident(w, fs, parentPrefix, prefixes, n)
 	case *ast.BasicLit:
-		basicLit(w, parentPrefix, prefixes, n)
+		basicLit(w, fs, parentPrefix, prefixes, n)
 	case *ast.CompositeLit:
-		compositeLit(w, parentPrefix, prefixes, n)
+		compositeLit(w, fs, parentPrefix, prefixes, n)
 	case *ast.FuncLit:
-		funcLit(w, parentPrefix, prefixes, n)
+		funcLit(w, fs, parentPrefix, prefixes, n)
 
 	// comment
 	case *ast.CommentGroup:
-		commentGroup(w, parentPrefix, prefixes, n)
+		commentGroup(w, fs, parentPrefix, prefixes, n)
 	case *ast.Comment:
-		comment(w, parentPrefix, prefixes, n)
+		comment(w, fs, parentPrefix, prefixes, n)
 
 	// Decls
 	case *ast.GenDecl:
-		genDecl(w, parentPrefix, prefixes, n)
+		genDecl(w, fs, parentPrefix, prefixes, n)
 	case *ast.BadDecl:
-		badDecl(w, parentPrefix, prefixes, n)
+		badDecl(w, fs, parentPrefix, prefixes, n)
 	case *ast.FuncDecl:
-		funcDecl(w, parentPrefix, prefixes, n)
+		funcDecl(w, fs, parentPrefix, prefixes, n)
 
 		// Expr
 	case *ast.BadExpr:
-		badExpr(w, parentPrefix, prefixes, n)
+		badExpr(w, fs, parentPrefix, prefixes, n)
 	case *ast.BinaryExpr:
-		binaryExpr(w, parentPrefix, prefixes, n)
+		binaryExpr(w, fs, parentPrefix, prefixes, n)
 	case *ast.CallExpr:
-		callExpr(w, parentPrefix, prefixes, n)
+		callExpr(w, fs, parentPrefix, prefixes, n)
 	case *ast.IndexExpr:
-		indexExpr(w, parentPrefix, prefixes, n)
+		indexExpr(w, fs, parentPrefix, prefixes, n)
 	case *ast.KeyValueExpr:
-		keyValueExpr(w, parentPrefix, prefixes, n)
+		keyValueExpr(w, fs, parentPrefix, prefixes, n)
 	case *ast.ParenExpr:
-		parenExpr(w, parentPrefix, prefixes, n)
+		parenExpr(w, fs, parentPrefix, prefixes, n)
 	case *ast.SelectorExpr:
-		selectorExpr(w, parentPrefix, prefixes, n)
+		selectorExpr(w, fs, parentPrefix, prefixes, n)
 	case *ast.SliceExpr:
-		sliceExpr(w, parentPrefix, prefixes, n)
+		sliceExpr(w, fs, parentPrefix, prefixes, n)
 	case *ast.StarExpr:
-		starExpr(w, parentPrefix, prefixes, n)
+		starExpr(w, fs, parentPrefix, prefixes, n)
 	case *ast.TypeAssertExpr:
-		typeAssertExpr(w, parentPrefix, prefixes, n)
+		typeAssertExpr(w, fs, parentPrefix, prefixes, n)
 	case *ast.UnaryExpr:
-		unaryExpr(w, parentPrefix, prefixes, n)
+		unaryExpr(w, fs, parentPrefix, prefixes, n)
 
 		// Statement
 	case *ast.AssignStmt:
-		assignStmt(w, parentPrefix, prefixes, n)
+		assignStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.BadStmt:
-		badStmt(w, parentPrefix, prefixes, n)
+		badStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.BlockStmt:
-		blockStmt(w, parentPrefix, prefixes, n)
+		blockStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.BranchStmt:
-		branchStmt(w, parentPrefix, prefixes, n)
+		branchStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.DeclStmt:
-		declStmt(w, parentPrefix, prefixes, n)
+		declStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.DeferStmt:
-		deferStmt(w, parentPrefix, prefixes, n)
+		deferStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.EmptyStmt:
-		emptyStmt(w, parentPrefix, prefixes, n)
+		emptyStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.ExprStmt:
-		exprStmt(w, parentPrefix, prefixes, n)
+		exprStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.ForStmt:
-		forStmt(w, parentPrefix, prefixes, n)
+		forStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.GoStmt:
-		goStmt(w, parentPrefix, prefixes, n)
+		goStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.IfStmt:
-		ifStmt(w, parentPrefix, prefixes, n)
+		ifStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.IncDecStmt:
-		incDecStmt(w, parentPrefix, prefixes, n)
+		incDecStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.LabeledStmt:
-		labeledStmt(w, parentPrefix, prefixes, n)
+		labeledStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.RangeStmt:
-		rangeStmt(w, parentPrefix, prefixes, n)
+		rangeStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.ReturnStmt:
-		returnStmt(w, parentPrefix, prefixes, n)
+		returnStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.SelectStmt:
-		selectStmt(w, parentPrefix, prefixes, n)
+		selectStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.SendStmt:
-		sendStmt(w, parentPrefix, prefixes, n)
+		sendStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.SwitchStmt:
-		switchStmt(w, parentPrefix, prefixes, n)
+		switchStmt(w, fs, parentPrefix, prefixes, n)
 	case *ast.TypeSwitchStmt:
-		typeSwitchStmt(w, parentPrefix, prefixes, n)
+		typeSwitchStmt(w, fs, parentPrefix, prefixes, n)
 
 		// Type
 	case *ast.ArrayType:
-		arrayType(w, parentPrefix, prefixes, n)
+		arrayType(w, fs, parentPrefix, prefixes, n)
 	case *ast.ChanType:
-		chanType(w, parentPrefix, prefixes, n)
+		chanType(w, fs, parentPrefix, prefixes, n)
 	case *ast.FuncType:
-		funcType(w, parentPrefix, prefixes, n)
+		funcType(w, fs, parentPrefix, prefixes, n)
 	case *ast.InterfaceType:
-		interfaceType(w, parentPrefix, prefixes, n)
+		interfaceType(w, fs, parentPrefix, prefixes, n)
 	case *ast.MapType:
-		mapType(w, parentPrefix, prefixes, n)
+		mapType(w, fs, parentPrefix, prefixes, n)
 	case *ast.StructType:
-		structType(w, parentPrefix, prefixes, n)
+		structType(w, fs, parentPrefix, prefixes, n)
 
 	case *ast.CaseClause:
-		caseClause(w, parentPrefix, prefixes, n)
+		caseClause(w, fs, parentPrefix, prefixes, n)
 	case *ast.CommClause:
-		commClause(w, parentPrefix, prefixes, n)
+		commClause(w, fs, parentPrefix, prefixes, n)
 	case *ast.Ellipsis:
-		ellipsis(w, parentPrefix, prefixes, n)
+		ellipsis(w, fs, parentPrefix, prefixes, n)
 	case *ast.Field:
-		field(w, parentPrefix, prefixes, n)
+		field(w, fs, parentPrefix, prefixes, n)
 	case *ast.FieldList:
-		fieldList(w, parentPrefix, prefixes, n)
+		fieldList(w, fs, parentPrefix, prefixes, n)
 	case *ast.Package:
-		package2(w, parentPrefix, prefixes, n)
+		package2(w, fs, parentPrefix, prefixes, n)
 	}
 }
