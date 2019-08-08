@@ -11,7 +11,7 @@ go get -u github.com/knsh14/astree/cmd/astree
 # options
 
 # Example
-https://play.golang.org/p/ucQjFbdeNcQ
+https://play.golang.org/p/up3cRnFCm61
 
 ```
 package main
@@ -37,10 +37,10 @@ func main() {
 	fmt.Println("Hello, playground")
 }`
 	fs := token.NewFileSet()
-	f, err := parser.ParseFile(fs, "", code, 0)
+	f, err := parser.ParseFile(fs, "main.go", code, 0)
 	if err != nil {
 		log.Fatal(err)
 	}
-	astree.File(os.Stdout, f)
+	astree.File(os.Stdout, fs, f)
 }
 ```
