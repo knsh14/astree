@@ -22,7 +22,7 @@ func chanType(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []st
 	fmt.Fprintf(w, "%s%sChanType\n", parentPrefix, prefixes[0])
 	fmt.Fprintf(w, "%s%s├── Begin = %s\n", parentPrefix, prefixes[1], fs.Position(node.Begin))
 	fmt.Fprintf(w, "%s%s├── Arrow = %s\n", parentPrefix, prefixes[1], fs.Position(node.Arrow))
-	fmt.Fprintf(w, "%s%s├── Dir = %s\n", parentPrefix, prefixes[1], node.Dir)
+	fmt.Fprintf(w, "%s%s├── Dir = %v\n", parentPrefix, prefixes[1], node.Dir)
 	fmt.Fprintf(w, "%s%s└── Value\n", parentPrefix, prefixes[1])
 	tree(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Value)
 }
