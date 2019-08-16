@@ -1,6 +1,7 @@
 package astree
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	"io"
@@ -17,12 +18,19 @@ var (
 )
 
 // File prints AST of one file
-func File(w io.Writer, fs *token.FileSet, node *ast.File) {
+func File(w io.Writer, fs *token.FileSet, node *ast.File) error {
+	if fs == nil {
+		return fmt.Errorf("*token.FileSet is nil")
+	}
 	tree(w, fs, "", []string{"", ""}, node)
+	return nil
 }
 
 // Packages prints AST of result from go/parser.ParseDir
-func Packages(w io.Writer, fs *token.FileSet, pkgs map[string]*ast.Package) {
+func Packages(w io.Writer, fs *token.FileSet, pkgs map[string]*ast.Package) error {
+	if fs == nil {
+		return fmt.Errorf("*token.FileSet is nil")
+	}
 	count := 0
 	for k, v := range pkgs {
 		if count < len(pkgs)-1 {
@@ -32,6 +40,7 @@ func Packages(w io.Writer, fs *token.FileSet, pkgs map[string]*ast.Package) {
 		}
 		count++
 	}
+	return nil
 }
 
 // Node prints AST node
