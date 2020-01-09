@@ -2,6 +2,7 @@ package astree
 
 import (
 	"bytes"
+	"go/ast"
 	"go/parser"
 	"go/token"
 	"strings"
@@ -56,5 +57,23 @@ func main() {
 	}
 	if !strings.Contains(err.Error(), "*token.FileSet is nil") {
 		t.Errorf("error message is not expected. actual=%s", err.Error())
+	}
+}
+
+func TestIdent(t *testing.T) {
+	i := &ast.Ident{
+		Name: "hello",
+	}
+	fset := token.NewFileSet() // positions are relative to fset
+	b := &bytes.Buffer{}
+	ident(b, fset, "", []string{"", ""}, i)
+	expect := `Ident
+├── NamePos = -
+├── Name = hello
+└── Obj = nil
+`
+	res := b.String()
+	if res != expect {
+		t.Fatalf("result is not expected.\nActual:\n%s\nExpected:\n%s\n", res, expect)
 	}
 }

@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"html/template"
 	"io"
+	"log"
+	"regexp"
+	"strings"
 )
 
 func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.File) {
@@ -52,13 +56,46 @@ func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string
 }
 
 func ident(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.Ident) {
-	fmt.Fprintf(w, "%s%sIdent\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── NamePos = %s\n", parentPrefix, prefixes[1], fs.Position(node.NamePos))
-	fmt.Fprintf(w, "%s%s├── Name = %s\n", parentPrefix, prefixes[1], node.Name)
-	fmt.Fprintf(w, "%s%s└── Obj\n", parentPrefix, prefixes[1])
-	if node.Obj != nil {
-		object(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Obj)
+	tpl := `Ident
+├── NamePos = {{ position .NamePos }}
+├── Name = {{.Name}}
+└── Obj {{ with .Obj }}{{ else }}= nil{{end}}
+`
+	lines := strings.Split(tpl, "\n")
+	nl := make([]string, len(lines))
+	for i, s := range lines {
+		if matched, err := regexp.MatchString("^[A-Z├└]", s); err == nil && matched {
+			if i == 0 {
+				nl[i] = "{{.ParentPrefix}}{{.HeadPrefix}}" + s
+			} else {
+				nl[i] = "{{.ParentPrefix}}{{.Prefix}}" + s
+			}
+		}
 	}
+	t := strings.Join(nl, "\n")
+
+	funcs := template.FuncMap{
+		"position": fs.Position,
+	}
+	identTpl, err := template.New("Ident").Funcs(funcs).Parse(t)
+	if err != nil {
+		log.Fatal(err)
+	}
+	n := struct {
+		*ast.Ident
+		ParentPrefix, HeadPrefix, Prefix string
+	}{node, parentPrefix, prefixes[0], prefixes[1]}
+	if err := identTpl.Execute(w, n); err != nil {
+		log.Fatal(err)
+	}
+
+	// fmt.Fprintf(w, "%s%sIdent\n", parentPrefix, prefixes[0])
+	// fmt.Fprintf(w, "%s%s├── NamePos = %s\n", parentPrefix, prefixes[1], fs.Position(node.NamePos))
+	// fmt.Fprintf(w, "%s%s├── Name = %s\n", parentPrefix, prefixes[1], node.Name)
+	// fmt.Fprintf(w, "%s%s└── Obj\n", parentPrefix, prefixes[1])
+	// if node.Obj != nil {
+	// 	object(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Obj)
+	// }
 }
 
 func commentGroup(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.CommentGroup) {
