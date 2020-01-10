@@ -10,6 +10,10 @@ import (
 )
 
 func TestInternalTree(t *testing.T) {
+	err := Ident(IdentTemplate)
+	if err != nil {
+		t.Fatalf("initialize template: %s", err)
+	}
 	src := `package main
 
 import "fmt"
@@ -33,6 +37,10 @@ func main() {
 }
 
 func TestFile_NilFileSet(t *testing.T) {
+	err := Ident(IdentTemplate)
+	if err != nil {
+		t.Fatalf("initialize template: %s", err)
+	}
 	src := `package main
 
 import "fmt"
@@ -61,6 +69,10 @@ func main() {
 }
 
 func TestIdent(t *testing.T) {
+	err := Ident(IdentTemplate)
+	if err != nil {
+		t.Fatalf("initialize template: %s", err)
+	}
 	i := &ast.Ident{
 		Name: "hello",
 	}
