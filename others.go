@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
-	"html/template"
 	"io"
 	"log"
 	"strings"
+	"text/template"
+	"text/template/parse"
+
+	"github.com/knsh14/templateutil"
 )
 
 const (
@@ -92,14 +95,49 @@ func Ident(tpl string) error {
 	}
 	var err error
 	identTemplate, err = template.New("Ident").Funcs(funcs).Parse(t)
-	return err
+	if err != nil {
+		return fmt.Errorf("create Ident template: %w", err)
+	}
+	return nil
 }
 
 func ident(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.Ident) {
+	lastLine := 0
+	lines := strings.Split(identTemplate.Tree.Root.String(), "\n")
+	for i := len(lines) - 1; i >= 0; i-- {
+		if lines[i] != "" {
+			lastLine = i + 1
+			break
+		}
+	}
+
 	funcs := template.FuncMap{
-		"obj": func(obj *ast.Object) error {
-			object(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, obj)
-			return nil
+		"obj": func(obj *ast.Object) string {
+			objLine := -1
+			templateutil.Inspect(identTemplate.Tree.Root, func(n parse.Node) bool {
+				if n == nil {
+					return false
+				}
+				if pn, ok := n.(*parse.PipeNode); ok {
+					for _, cmds := range pn.Cmds {
+						for _, arg := range cmds.Args {
+							if in, ok := arg.(*parse.IdentifierNode); ok && in.Ident == "obj" {
+								objLine = pn.Line
+							}
+						}
+					}
+				}
+				return true
+			})
+			if objLine < 0 {
+				return ""
+			}
+			if lastLine > objLine {
+				object(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, obj)
+			} else {
+				object(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, obj)
+			}
+			return ""
 		},
 		"position": fs.Position,
 	}

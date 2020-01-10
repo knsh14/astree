@@ -1,2 +1,4 @@
+github.com/knsh14/templateutil v0.0.0-20200110135320-a3527bac834a h1:4yKbFAVgJ7yU/QE+R7yGcWHHJG8RuSYUSE8JSlj1upQ=
+github.com/knsh14/templateutil v0.0.0-20200110135320-a3527bac834a/go.mod h1:ABxgDuLmBjbMN128ohOT2oqIh0xNHSiPwEqY7JSc1Vk=
 github.com/morikuni/failure v0.11.0 h1:fLQwvKbFhGYmHankExnKlsKGYbath50lBAujCd4lE7A=
 github.com/morikuni/failure v0.11.0/go.mod h1:+IjvKCz9B/D4BQrTzYLwERdWyMkGJdu+q5gri9dWecg=
