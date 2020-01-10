@@ -7,7 +7,6 @@ import (
 	"html/template"
 	"io"
 	"log"
-	"regexp"
 	"strings"
 )
 
@@ -70,14 +69,17 @@ func Ident(tpl string) error {
 	lines := strings.Split(tpl, "\n")
 	nl := make([]string, len(lines))
 	for i, s := range lines {
-		if matched, err := regexp.MatchString("^[A-Z├└]", s); err == nil && matched {
-			if i == 0 {
-				nl[i] = "{{.ParentPrefix}}{{.HeadPrefix}}" + s
-			} else {
-				nl[i] = "{{.ParentPrefix}}{{.Prefix}}" + s
-			}
+		//	if matched, err := regexp.MatchString("^[A-Z├└]", s); err == nil && matched {
+		if i == 0 {
+			nl[i] = "{{.ParentPrefix}}{{.HeadPrefix}}" + s
+		} else {
+			nl[i] = "{{.ParentPrefix}}{{.Prefix}}" + s
 		}
+		//	}
 	}
+	// if nl[len(nl)-1] != "" {
+	// 	nl = append(nl, "")
+	// }
 	t := strings.Join(nl, "\n")
 
 	funcs := template.FuncMap{
