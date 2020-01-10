@@ -14,10 +14,12 @@ import (
 
 var (
 	ignorePattern string
+	identTemplate string
 )
 
 func init() {
 	flag.StringVar(&ignorePattern, "I", "", "")
+	flag.StringVar(&identTemplate, "ident", astree.IdentTemplate, "")
 }
 
 func main() {
@@ -27,6 +29,14 @@ func main() {
 		fmt.Fprintln(os.Stderr, "argument must be 1")
 		os.Exit(2)
 	}
+
+	// initialize templates
+	err := astree.Ident(identTemplate)
+	if err != nil {
+		fmt.Fprint(os.Stderr, err)
+		os.Exit(1)
+	}
+
 	abs, err := filepath.Abs(args[0])
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)

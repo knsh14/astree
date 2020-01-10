@@ -11,6 +11,17 @@ import (
 	"strings"
 )
 
+const (
+	IdentTemplate = `Ident
+├── NamePos = {{ position .NamePos }}
+├── Name = {{.Name}}
+└── Obj{{ with .Obj }}{{ println }}{{ obj . }}{{ else }} = nil{{ println }}{{end}}`
+)
+
+var (
+	identTemplate *template.Template
+)
+
 func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.File) {
 	fmt.Fprintf(w, "%s%sFile\n", parentPrefix, prefixes[0])
 	fmt.Fprintf(w, "%s%s├── Doc\n", parentPrefix, prefixes[1])
@@ -55,12 +66,7 @@ func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string
 	}
 }
 
-func ident(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.Ident) {
-	tpl := `Ident
-├── NamePos = {{ position .NamePos }}
-├── Name = {{.Name}}
-└── Obj {{ with .Obj }}{{ else }}= nil{{end}}
-`
+func Ident(tpl string) error {
 	lines := strings.Split(tpl, "\n")
 	nl := make([]string, len(lines))
 	for i, s := range lines {
@@ -75,27 +81,34 @@ func ident(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []strin
 	t := strings.Join(nl, "\n")
 
 	funcs := template.FuncMap{
+		"obj": func(obj *ast.Object) error {
+			return nil
+		},
+		"position": func() error {
+			return nil
+		},
+	}
+	var err error
+	identTemplate, err = template.New("Ident").Funcs(funcs).Parse(t)
+	return err
+}
+
+func ident(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.Ident) {
+	funcs := template.FuncMap{
+		"obj": func(obj *ast.Object) error {
+			object(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, obj)
+			return nil
+		},
 		"position": fs.Position,
 	}
-	identTpl, err := template.New("Ident").Funcs(funcs).Parse(t)
-	if err != nil {
-		log.Fatal(err)
-	}
+	itpl := identTemplate.Funcs(funcs)
 	n := struct {
 		*ast.Ident
 		ParentPrefix, HeadPrefix, Prefix string
 	}{node, parentPrefix, prefixes[0], prefixes[1]}
-	if err := identTpl.Execute(w, n); err != nil {
+	if err := itpl.Execute(w, n); err != nil {
 		log.Fatal(err)
 	}
-
-	// fmt.Fprintf(w, "%s%sIdent\n", parentPrefix, prefixes[0])
-	// fmt.Fprintf(w, "%s%s├── NamePos = %s\n", parentPrefix, prefixes[1], fs.Position(node.NamePos))
-	// fmt.Fprintf(w, "%s%s├── Name = %s\n", parentPrefix, prefixes[1], node.Name)
-	// fmt.Fprintf(w, "%s%s└── Obj\n", parentPrefix, prefixes[1])
-	// if node.Obj != nil {
-	// 	object(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Obj)
-	// }
 }
 
 func commentGroup(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.CommentGroup) {
