@@ -5,23 +5,8 @@ import (
 	"go/ast"
 	"go/token"
 	"io"
-	"log"
 	"strings"
 	"text/template"
-	"text/template/parse"
-
-	"github.com/knsh14/templateutil"
-)
-
-const (
-	IdentTemplate = `Ident
-├── NamePos = {{ position .NamePos }}
-├── Name = {{.Name}}
-└── Obj{{ with .Obj }}{{ println }}{{ obj . }}{{ else }} = nil{{ println }}{{end}}`
-)
-
-var (
-	identTemplate *template.Template
 )
 
 func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.File) {
@@ -72,13 +57,11 @@ func Ident(tpl string) error {
 	lines := strings.Split(tpl, "\n")
 	nl := make([]string, len(lines))
 	for i, s := range lines {
-		//	if matched, err := regexp.MatchString("^[A-Z├└]", s); err == nil && matched {
 		if i == 0 {
 			nl[i] = "{{.ParentPrefix}}{{.HeadPrefix}}" + s
 		} else {
 			nl[i] = "{{.ParentPrefix}}{{.Prefix}}" + s
 		}
-		//	}
 	}
 	// if nl[len(nl)-1] != "" {
 	// 	nl = append(nl, "")
@@ -102,52 +85,12 @@ func Ident(tpl string) error {
 }
 
 func ident(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.Ident) {
-	lastLine := 0
-	lines := strings.Split(identTemplate.Tree.Root.String(), "\n")
-	for i := len(lines) - 1; i >= 0; i-- {
-		if lines[i] != "" {
-			lastLine = i + 1
-			break
-		}
-	}
-
-	funcs := template.FuncMap{
-		"obj": func(obj *ast.Object) string {
-			objLine := -1
-			templateutil.Inspect(identTemplate.Tree.Root, func(n parse.Node) bool {
-				if n == nil {
-					return false
-				}
-				if pn, ok := n.(*parse.PipeNode); ok {
-					for _, cmds := range pn.Cmds {
-						for _, arg := range cmds.Args {
-							if in, ok := arg.(*parse.IdentifierNode); ok && in.Ident == "obj" {
-								objLine = pn.Line
-							}
-						}
-					}
-				}
-				return true
-			})
-			if objLine < 0 {
-				return ""
-			}
-			if lastLine > objLine {
-				object(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, obj)
-			} else {
-				object(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, obj)
-			}
-			return ""
-		},
-		"position": fs.Position,
-	}
-	itpl := identTemplate.Funcs(funcs)
-	n := struct {
-		*ast.Ident
-		ParentPrefix, HeadPrefix, Prefix string
-	}{node, parentPrefix, prefixes[0], prefixes[1]}
-	if err := itpl.Execute(w, n); err != nil {
-		log.Fatal(err)
+	fmt.Fprintf(w, "%s%sIdent\n", parentPrefix, prefixes[0])
+	fmt.Fprintf(w, "%s%s├── NamePos = %s\n", parentPrefix, prefixes[1], fs.Position(node.NamePos))
+	fmt.Fprintf(w, "%s%s├── Name = %s\n", parentPrefix, prefixes[1], node.Name)
+	fmt.Fprintf(w, "%s%s└── Obj\n", parentPrefix, prefixes[1])
+	if node.Obj != nil {
+		object(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Obj)
 	}
 }
 

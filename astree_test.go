@@ -2,7 +2,6 @@ package astree
 
 import (
 	"bytes"
-	"go/ast"
 	"go/parser"
 	"go/token"
 	"strings"
@@ -10,10 +9,6 @@ import (
 )
 
 func TestInternalTree(t *testing.T) {
-	err := Ident(IdentTemplate)
-	if err != nil {
-		t.Fatalf("initialize template: %s", err)
-	}
 	src := `package main
 
 import "fmt"
@@ -37,10 +32,6 @@ func main() {
 }
 
 func TestFile_NilFileSet(t *testing.T) {
-	err := Ident(IdentTemplate)
-	if err != nil {
-		t.Fatalf("initialize template: %s", err)
-	}
 	src := `package main
 
 import "fmt"
@@ -65,27 +56,5 @@ func main() {
 	}
 	if !strings.Contains(err.Error(), "*token.FileSet is nil") {
 		t.Errorf("error message is not expected. actual=%s", err.Error())
-	}
-}
-
-func TestIdent(t *testing.T) {
-	err := Ident(IdentTemplate)
-	if err != nil {
-		t.Fatalf("initialize template: %s", err)
-	}
-	i := &ast.Ident{
-		Name: "hello",
-	}
-	fset := token.NewFileSet() // positions are relative to fset
-	b := &bytes.Buffer{}
-	ident(b, fset, "", []string{"", ""}, i)
-	expect := `Ident
-├── NamePos = -
-├── Name = hello
-└── Obj = nil
-`
-	res := b.String()
-	if res != expect {
-		t.Fatalf("result is not expected.\nActual:\n%s\nExpected:\n%s\n", res, expect)
 	}
 }
