@@ -12,8 +12,7 @@ func TestIdent(t *testing.T) {
 		expected := `Ident
 ├── NamePos = -
 ├── Name = hello
-└── Obj
-`
+└── Obj`
 		i := &ast.Ident{
 			Name: "hello",
 		}

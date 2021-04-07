@@ -7,12 +7,15 @@ import (
 	"io"
 	"strings"
 	"text/template"
+
+	"github.com/morikuni/failure"
 )
 
 var identTemplate2 = `Ident
 ├── NamePos = {{ position .NamePos }}
 ├── Name = {{ .Name }}
-{{ with .Obj }}└── Obj = {{ obj . }}{{ else }}└── Obj{{ end }}
+└── Obj
+{{ with .Obj }}{{ obj . }}{{ end }}
 `
 var (
 	identTemplate *template.Template
@@ -21,11 +24,11 @@ var (
 func TemplNode(w io.Writer, fs *token.FileSet, node ast.Node) error {
 	err := Initialize(fs)
 	if err != nil {
-		return fmt.Errorf("initialize: %w", err)
+		return failure.Wrap(err, failure.Messagef("initialize"))
 	}
 	err = tmpltree(w, "", []string{"", ""}, node)
 	if err != nil {
-		return fmt.Errorf("execute tree: %w", err)
+		return failure.Wrap(err, failure.Messagef("execute tree"))
 	}
 	return nil
 }
@@ -48,7 +51,7 @@ func Initialize(fs *token.FileSet) error {
 
 	tmpl, err := template.New("ident").Funcs(funcMap).Parse(s)
 	if err != nil {
-		return fmt.Errorf("parse ident template: %w", err)
+		return failure.Wrap(err, failure.Messagef("parse ident template"))
 	}
 
 	identTemplate = tmpl
@@ -58,7 +61,7 @@ func Initialize(fs *token.FileSet) error {
 func tmplident(w io.Writer, parentPrefix string, prefixes []string, node *ast.Ident) error {
 	t, err := identTemplate.Clone()
 	if err != nil {
-		return fmt.Errorf("clone base ident template: %w", err)
+		return failure.Wrap(err, failure.Messagef("clone base ident template"))
 	}
 	funcMap := template.FuncMap{
 		"tree": func(node ast.Node) string {
@@ -71,11 +74,11 @@ func tmplident(w io.Writer, parentPrefix string, prefixes []string, node *ast.Id
 	}
 	t, err = t.Funcs(funcMap).Parse(fmt.Sprintf("{{define \"prefix1\"}}%s{{end}}{{ define \"prefix2\" }}%s{{end}}", parentPrefix+prefixes[0], parentPrefix+prefixes[1]))
 	if err != nil {
-		return fmt.Errorf("parse prefix templates: %w", err)
+		return failure.Wrap(err, failure.Messagef("parse prefix templates"))
 	}
 	err = t.Execute(w, node)
 	if err != nil {
-		return fmt.Errorf("execute ident template: %w", err)
+		return failure.Wrap(err, failure.Messagef("execute ident template"))
 	}
 	return nil
 }
@@ -88,7 +91,7 @@ func tmpltree(w io.Writer, parentPrefix string, prefixes []string, node ast.Node
 	case *ast.Ident:
 		err := tmplident(w, parentPrefix, prefixes, n)
 		if err != nil {
-			return fmt.Errorf("execute tree ident template: %w", err)
+			return failure.Wrap(err, failure.Messagef("execute tree ident template"))
 		}
 	}
 	return nil
