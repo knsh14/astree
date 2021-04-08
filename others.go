@@ -231,7 +231,7 @@ func object(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []stri
 	fmt.Fprintf(w, "%s%sObject\n", parentPrefix, prefixes[0])
 	fmt.Fprintf(w, "%s%s├── Kind = %s\n", parentPrefix, prefixes[1], node.Kind)
 	fmt.Fprintf(w, "%s%s├── Name = %s\n", parentPrefix, prefixes[1], node.Name)
-	fmt.Fprintf(w, "%s%s├── Decl = %#v\n", parentPrefix, prefixes[1], node.Decl)
+	fmt.Fprintf(w, "%s%s├── Decl = %v\n", parentPrefix, prefixes[1], node.Decl)
 	fmt.Fprintf(w, "%s%s├── Data = %#v\n", parentPrefix, prefixes[1], node.Data)
 	fmt.Fprintf(w, "%s%s└── Type = %#v\n", parentPrefix, prefixes[1], node.Type)
 }
