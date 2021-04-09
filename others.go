@@ -8,8 +8,8 @@ import (
 )
 
 func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.File) {
-	fmt.Fprintf(w, "%s%sfile\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── doc\n", parentPrefix, prefixes[1])
+	fmt.Fprintf(w, "%s%sFile\n", parentPrefix, prefixes[0])
+	fmt.Fprintf(w, "%s%s├── Doc\n", parentPrefix, prefixes[1])
 	if node.Doc != nil {
 		tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Doc)
 	}
