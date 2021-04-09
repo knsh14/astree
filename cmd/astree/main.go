@@ -13,13 +13,11 @@ import (
 )
 
 var (
-	ignorePattern string
-	identTemplate string
+	useTemplate bool
 )
 
 func init() {
-	flag.StringVar(&ignorePattern, "I", "", "")
-	flag.StringVar(&identTemplate, "ident", astree.IdentTemplate, "")
+	flag.BoolVar(&useTemplate, "template", false, "")
 }
 
 func main() {
@@ -28,13 +26,6 @@ func main() {
 	if len(args) > 1 {
 		fmt.Fprintln(os.Stderr, "argument must be 1")
 		os.Exit(2)
-	}
-
-	// initialize templates
-	err := astree.Ident(identTemplate)
-	if err != nil {
-		fmt.Fprint(os.Stderr, err)
-		os.Exit(1)
 	}
 
 	abs, err := filepath.Abs(args[0])
@@ -56,7 +47,7 @@ func main() {
 		}
 		return
 	}
-	err = file(fs, args[0])
+	err = file(fs, args[0], useTemplate)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 		os.Exit(1)
@@ -73,10 +64,13 @@ func packages(fs *token.FileSet, p string) error {
 	return astree.Packages(os.Stdout, fs, pkgs)
 }
 
-func file(fs *token.FileSet, p string) error {
+func file(fs *token.FileSet, p string, useTemplate bool) error {
 	f, err := parser.ParseFile(fs, p, nil, 0)
 	if err != nil {
 		return failure.Wrap(err, failure.Messagef("failed to parse file: %s", p))
+	}
+	if useTemplate {
+		return astree.TemplNode(os.Stdout, fs, f)
 	}
 	return astree.File(os.Stdout, fs, f)
 }

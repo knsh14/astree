@@ -1,6 +1,6 @@
 module github.com/knsh14/astree
 
-go 1.12
+go 1.16
 
 require (
 	github.com/google/go-cmp v0.5.5 // indirect

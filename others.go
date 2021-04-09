@@ -5,13 +5,11 @@ import (
 	"go/ast"
 	"go/token"
 	"io"
-	"strings"
-	"text/template"
 )
 
 func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.File) {
-	fmt.Fprintf(w, "%s%sFile\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── Doc\n", parentPrefix, prefixes[1])
+	fmt.Fprintf(w, "%s%sfile\n", parentPrefix, prefixes[0])
+	fmt.Fprintf(w, "%s%s├── doc\n", parentPrefix, prefixes[1])
 	if node.Doc != nil {
 		tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Doc)
 	}
@@ -43,7 +41,7 @@ func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Unresolved[i])
 		}
 	}
-	fmt.Fprintf(w, "%s%s└── Unresolved (length=%d)\n", parentPrefix, prefixes[1], len(node.Comments))
+	fmt.Fprintf(w, "%s%s└── Comments (length=%d)\n", parentPrefix, prefixes[1], len(node.Comments))
 	for i := range node.Comments {
 		if i < len(node.Comments)-1 {
 			tree(w, fs, parentPrefix+prefixes[1]+tailLine, middlePrefixes, node.Comments[i])
@@ -51,37 +49,6 @@ func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string
 			tree(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Comments[i])
 		}
 	}
-}
-
-func Ident(tpl string) error {
-	lines := strings.Split(tpl, "\n")
-	nl := make([]string, len(lines))
-	for i, s := range lines {
-		if i == 0 {
-			nl[i] = "{{.ParentPrefix}}{{.HeadPrefix}}" + s
-		} else {
-			nl[i] = "{{.ParentPrefix}}{{.Prefix}}" + s
-		}
-	}
-	// if nl[len(nl)-1] != "" {
-	// 	nl = append(nl, "")
-	// }
-	t := strings.Join(nl, "\n")
-
-	funcs := template.FuncMap{
-		"obj": func(obj *ast.Object) error {
-			return nil
-		},
-		"position": func() error {
-			return nil
-		},
-	}
-	var err error
-	identTemplate, err = template.New("Ident").Funcs(funcs).Parse(t)
-	if err != nil {
-		return fmt.Errorf("create Ident template: %w", err)
-	}
-	return nil
 }
 
 func ident(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.Ident) {

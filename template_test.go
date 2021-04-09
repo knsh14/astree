@@ -10,7 +10,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestIdent(t *testing.T) {
+func TestTemplateIdent(t *testing.T) {
 	fset := token.NewFileSet() // positions are relative to fset
 	err := Initialize(fset)
 	t.Run("fixed", func(t *testing.T) {
@@ -26,7 +26,7 @@ func TestIdent(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		err = tmplident(&b, "", []string{"", ""}, i)
+		err = tmpltree(&b, "", []string{"", ""}, i)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -56,7 +56,7 @@ func TestIdent(t *testing.T) {
 	})
 }
 
-func TestObject(t *testing.T) {
+func TestTemplateObject(t *testing.T) {
 	example := `package main
 func main() {
 	v := 10
@@ -74,7 +74,7 @@ func main() {
 	c := true
 	ast.Inspect(v, func(node ast.Node) bool {
 		if n, ok := node.(*ast.Ident); c && ok && n.Name == "v" {
-			err = tmplident(&actual, "", []string{"", ""}, n)
+			err = tmpltree(&actual, "", []string{"", ""}, n)
 			if err != nil {
 				t.Fatal(err)
 			}
