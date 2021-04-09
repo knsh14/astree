@@ -14,30 +14,7 @@ import (
 	"github.com/morikuni/failure"
 )
 
-type templatePair struct {
-	Tpl      string
-	Template *template.Template
-}
-
 var (
-	allTemplate = `
-{{ define "*ast.Ident" -}}
-{{ template "prefix1" }}Ident
-{{ template "prefix2" }}├── NamePos = {{ position .NamePos }}
-{{ template "prefix2" }}├── Name = {{ .Name }}
-{{ template "prefix2" }}└── Obj
-{{ template "prefix2" }}{{ with .Obj }}{{ obj . }}{{ end }}
-{{- end }}
-{{ define "*ast.Object" -}}
-{{ template "prefix1" }}Object
-{{ template "prefix2" }}├── Kind = {{ .Kind }}
-{{ template "prefix2" }}├── Name = {{ .Name }}
-{{ template "prefix2" }}├── Decl = {{ print .Decl }}
-{{ template "prefix2" }}├── Data = {{ print .Data }}
-{{ template "prefix2" }}└── Type = {{ print .Type }}{{ println }}
-{{- end }}
-`
-
 	//go:embed all.tpl
 	tpl          string
 	allTemplates *template.Template
@@ -120,8 +97,3 @@ func tmpltree(w io.Writer, parentPrefix string, prefixes []string, node ast.Node
 	}
 	return nil
 }
-
-// テンプレート文字列に対して先頭に罫線用のプレフィックスをつける
-// template を全部ブロックにする
-// 関数を定義する
-//
