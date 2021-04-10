@@ -41,7 +41,7 @@ func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Unresolved[i])
 		}
 	}
-	fmt.Fprintf(w, "%s%s└── Unresolved (length=%d)\n", parentPrefix, prefixes[1], len(node.Comments))
+	fmt.Fprintf(w, "%s%s└── Comments (length=%d)\n", parentPrefix, prefixes[1], len(node.Comments))
 	for i := range node.Comments {
 		if i < len(node.Comments)-1 {
 			tree(w, fs, parentPrefix+prefixes[1]+tailLine, middlePrefixes, node.Comments[i])
@@ -198,7 +198,7 @@ func object(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []stri
 	fmt.Fprintf(w, "%s%sObject\n", parentPrefix, prefixes[0])
 	fmt.Fprintf(w, "%s%s├── Kind = %s\n", parentPrefix, prefixes[1], node.Kind)
 	fmt.Fprintf(w, "%s%s├── Name = %s\n", parentPrefix, prefixes[1], node.Name)
-	fmt.Fprintf(w, "%s%s├── Decl = %#v\n", parentPrefix, prefixes[1], node.Decl)
+	fmt.Fprintf(w, "%s%s├── Decl = %v\n", parentPrefix, prefixes[1], node.Decl)
 	fmt.Fprintf(w, "%s%s├── Data = %#v\n", parentPrefix, prefixes[1], node.Data)
 	fmt.Fprintf(w, "%s%s└── Type = %#v\n", parentPrefix, prefixes[1], node.Type)
 }
