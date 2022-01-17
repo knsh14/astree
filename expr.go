@@ -128,7 +128,7 @@ func indexListExpr(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes
 	fmt.Fprintf(w, "%s%sIndexListExpr\n", parentPrefix, prefixes[0])
 	fmt.Fprintf(w, "%s%s├── X\n", parentPrefix, prefixes[1])
 	tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.X)
-	fmt.Fprintf(w, "%s%s├── Lparen = %s\n", parentPrefix, prefixes[1], fs.Position(node.Lparen))
+	fmt.Fprintf(w, "%s%s├── Lbrack = %s\n", parentPrefix, prefixes[1], fs.Position(node.Lbrack))
 	fmt.Fprintf(w, "%s%s├── Indices\n", parentPrefix, prefixes[1])
 	for i := range node.Indices {
 		if i < len(node.Indices)-1 {
@@ -137,5 +137,5 @@ func indexListExpr(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Indices[i])
 		}
 	}
-	fmt.Fprintf(w, "%s%s└── Rparen = %s\n", parentPrefix, prefixes[1], fs.Position(node.Rparen))
+	fmt.Fprintf(w, "%s%s└── Rbrack = %s\n", parentPrefix, prefixes[1], fs.Position(node.Rbrack))
 }
