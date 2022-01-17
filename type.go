@@ -30,6 +30,10 @@ func chanType(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []st
 func funcType(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.FuncType) {
 	fmt.Fprintf(w, "%s%sFuncType\n", parentPrefix, prefixes[0])
 	fmt.Fprintf(w, "%s%s├── Func = %s\n", parentPrefix, prefixes[1], fs.Position(node.Func))
+	fmt.Fprintf(w, "%s%s├── TypeParams\n", parentPrefix, prefixes[1])
+	if node.TypeParams != nil {
+		tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.TypeParams)
+	}
 	fmt.Fprintf(w, "%s%s├── Params\n", parentPrefix, prefixes[1])
 	tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Params)
 	fmt.Fprintf(w, "%s%s└── Results\n", parentPrefix, prefixes[1])

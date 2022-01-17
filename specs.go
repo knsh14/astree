@@ -34,6 +34,10 @@ func typeSpec(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []st
 	}
 	fmt.Fprintf(w, "%s%s├── Name\n", parentPrefix, prefixes[1])
 	tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Name)
+	fmt.Fprintf(w, "%s%s├── TypeParams\n", parentPrefix, prefixes[1])
+	if node.TypeParams != nil {
+		tree(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.TypeParams)
+	}
 	fmt.Fprintf(w, "%s%s├── Assign = %s\n", parentPrefix, prefixes[1], fs.Position(node.Assign))
 	fmt.Fprintf(w, "%s%s├── Type\n", parentPrefix, prefixes[1])
 	tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Type)

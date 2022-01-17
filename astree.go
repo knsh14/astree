@@ -108,6 +108,8 @@ func tree(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string
 		typeAssertExpr(w, fs, parentPrefix, prefixes, n)
 	case *ast.UnaryExpr:
 		unaryExpr(w, fs, parentPrefix, prefixes, n)
+	case *ast.IndexListExpr:
+		indexListExpr(w, fs, parentPrefix, prefixes, n)
 
 		// Statement
 	case *ast.AssignStmt:
