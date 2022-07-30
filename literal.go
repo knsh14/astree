@@ -14,7 +14,7 @@ func basicLit(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []st
 }
 
 func compositeLit(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.CompositeLit) {
-	fmt.Fprintf(w, "%s%sBasicLit\n", parentPrefix, prefixes[0])
+	fmt.Fprintf(w, "%s%sCompositeLit\n", parentPrefix, prefixes[0])
 	fmt.Fprintf(w, "%s%s├── Type\n", parentPrefix, prefixes[1])
 	if node.Type != nil {
 		tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Type)
