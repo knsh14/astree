@@ -14,10 +14,18 @@ import (
 
 var (
 	ignorePattern string
+	middlePrefix  string
+	tailPrefix    string
+	middleLine    string
+	tailLine      string
 )
 
 func init() {
 	flag.StringVar(&ignorePattern, "I", "", "")
+	flag.StringVar(&middlePrefix, "middle-prefix", "├── ", "prefix for middle tree nodes")
+	flag.StringVar(&tailPrefix, "tail-prefix", "└── ", "prefix for tail tree nodes")
+	flag.StringVar(&middleLine, "middle-line", "│   ", "line continuation for middle nodes")
+	flag.StringVar(&tailLine, "tail-line", "    ", "line continuation for tail nodes")
 }
 
 func main() {
@@ -38,35 +46,41 @@ func main() {
 		os.Exit(1)
 	}
 	fs := token.NewFileSet()
+	config := astree.Config{
+		MiddlePrefix: middlePrefix,
+		TailPrefix:   tailPrefix,
+		MiddleLine:   middleLine,
+		TailLine:     tailLine,
+	}
 	if stat.IsDir() {
-		err = packages(fs, args[0])
+		err = packages(fs, args[0], config)
 		if err != nil {
 			fmt.Fprint(os.Stderr, err)
 			os.Exit(1)
 		}
 		return
 	}
-	err = file(fs, args[0])
+	err = file(fs, args[0], config)
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func packages(fs *token.FileSet, p string) error {
+func packages(fs *token.FileSet, p string, config astree.Config) error {
 	pkgs, err := parser.ParseDir(fs, p, func(fi os.FileInfo) bool {
 		return true
 	}, 0)
 	if err != nil {
 		return failure.Wrap(err, failure.Messagef("failed to parse directory: %s", p))
 	}
-	return astree.Packages(os.Stdout, fs, pkgs)
+	return astree.PackagesWithConfig(os.Stdout, fs, pkgs, config)
 }
 
-func file(fs *token.FileSet, p string) error {
+func file(fs *token.FileSet, p string, config astree.Config) error {
 	f, err := parser.ParseFile(fs, p, nil, 0)
 	if err != nil {
 		return failure.Wrap(err, failure.Messagef("failed to parse file: %s", p))
 	}
-	return astree.File(os.Stdout, fs, f)
+	return astree.FileWithConfig(os.Stdout, fs, f, config)
 }

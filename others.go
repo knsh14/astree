@@ -9,14 +9,14 @@ import (
 
 func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.File) {
 	fmt.Fprintf(w, "%s%sFile\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── Doc\n", parentPrefix, prefixes[1])
+	fmt.Fprintf(w, "%s%s%sDoc\n", parentPrefix, prefixes[1], getMiddlePrefix())
 	if node.Doc != nil {
 		tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Doc)
 	}
-	fmt.Fprintf(w, "%s%s├── Package = %s\n", parentPrefix, prefixes[1], fs.Position(node.Package))
-	fmt.Fprintf(w, "%s%s├── Name\n", parentPrefix, prefixes[1])
+	fmt.Fprintf(w, "%s%s%sPackage = %s\n", parentPrefix, prefixes[1], getMiddlePrefix(), fs.Position(node.Package))
+	fmt.Fprintf(w, "%s%s%sName\n", parentPrefix, prefixes[1], getMiddlePrefix())
 	tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Name)
-	fmt.Fprintf(w, "%s%s├── Decls (length=%d)\n", parentPrefix, prefixes[1], len(node.Decls))
+	fmt.Fprintf(w, "%s%s%sDecls (length=%d)\n", parentPrefix, prefixes[1], getMiddlePrefix(), len(node.Decls))
 	for i := range node.Decls {
 		if i < len(node.Decls)-1 {
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Decls[i])
@@ -24,8 +24,8 @@ func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Decls[i])
 		}
 	}
-	fmt.Fprintf(w, "%s%s├── Scope\n", parentPrefix, prefixes[1])
-	fmt.Fprintf(w, "%s%s├── Imports (length=%d)\n", parentPrefix, prefixes[1], len(node.Imports))
+	fmt.Fprintf(w, "%s%s%sScope\n", parentPrefix, prefixes[1], getMiddlePrefix())
+	fmt.Fprintf(w, "%s%s%sImports (length=%d)\n", parentPrefix, prefixes[1], getMiddlePrefix(), len(node.Imports))
 	for i := range node.Imports {
 		if i < len(node.Imports)-1 {
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Imports[i])
@@ -33,7 +33,7 @@ func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Imports[i])
 		}
 	}
-	fmt.Fprintf(w, "%s%s├── Unresolved (length=%d)\n", parentPrefix, prefixes[1], len(node.Unresolved))
+	fmt.Fprintf(w, "%s%s%sUnresolved (length=%d)\n", parentPrefix, prefixes[1], getMiddlePrefix(), len(node.Unresolved))
 	for i := range node.Unresolved {
 		if i < len(node.Unresolved)-1 {
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Unresolved[i])
@@ -41,7 +41,7 @@ func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Unresolved[i])
 		}
 	}
-	fmt.Fprintf(w, "%s%s└── Unresolved (length=%d)\n", parentPrefix, prefixes[1], len(node.Comments))
+	fmt.Fprintf(w, "%s%s%sUnresolved (length=%d)\n", parentPrefix, prefixes[1], getTailPrefix(), len(node.Comments))
 	for i := range node.Comments {
 		if i < len(node.Comments)-1 {
 			tree(w, fs, parentPrefix+prefixes[1]+tailLine, middlePrefixes, node.Comments[i])
@@ -53,9 +53,9 @@ func file(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string
 
 func ident(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.Ident) {
 	fmt.Fprintf(w, "%s%sIdent\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── NamePos = %s\n", parentPrefix, prefixes[1], fs.Position(node.NamePos))
-	fmt.Fprintf(w, "%s%s├── Name = %s\n", parentPrefix, prefixes[1], node.Name)
-	fmt.Fprintf(w, "%s%s└── Obj\n", parentPrefix, prefixes[1])
+	fmt.Fprintf(w, "%s%s%sNamePos = %s\n", parentPrefix, prefixes[1], getMiddlePrefix(), fs.Position(node.NamePos))
+	fmt.Fprintf(w, "%s%s%sName = %s\n", parentPrefix, prefixes[1], getMiddlePrefix(), node.Name)
+	fmt.Fprintf(w, "%s%s%sObj\n", parentPrefix, prefixes[1], getTailPrefix())
 	if node.Obj != nil {
 		object(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Obj)
 	}
@@ -63,7 +63,7 @@ func ident(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []strin
 
 func commentGroup(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.CommentGroup) {
 	fmt.Fprintf(w, "%s%sCommentGroup\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── List (length=%d)\n", parentPrefix, prefixes[1], len(node.List))
+	fmt.Fprintf(w, "%s%s%sList (length=%d)\n", parentPrefix, prefixes[1], getTailPrefix(), len(node.List))
 	for i, comment := range node.List {
 		if i == len(node.List)-1 {
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, comment)
@@ -75,14 +75,14 @@ func commentGroup(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes 
 
 func comment(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.Comment) {
 	fmt.Fprintf(w, "%s%sComment\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── Slash = %s\n", parentPrefix, prefixes[1], fs.Position(node.Slash))
-	fmt.Fprintf(w, "%s%s└── Text = %s\n", parentPrefix, prefixes[1], node.Text)
+	fmt.Fprintf(w, "%s%s%sSlash = %s\n", parentPrefix, prefixes[1], getMiddlePrefix(), fs.Position(node.Slash))
+	fmt.Fprintf(w, "%s%s%sText = %s\n", parentPrefix, prefixes[1], getTailPrefix(), node.Text)
 }
 
 func caseClause(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.CaseClause) {
 	fmt.Fprintf(w, "%s%sCaseClause\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── Case = %s\n", parentPrefix, prefixes[1], fs.Position(node.Case))
-	fmt.Fprintf(w, "%s%s├── List (length=%d)\n", parentPrefix, prefixes[1], len(node.List))
+	fmt.Fprintf(w, "%s%s%sCase = %s\n", parentPrefix, prefixes[1], getMiddlePrefix(), fs.Position(node.Case))
+	fmt.Fprintf(w, "%s%s%sList (length=%d)\n", parentPrefix, prefixes[1], getMiddlePrefix(), len(node.List))
 	for i := range node.List {
 		if i < len(node.List)-1 {
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.List[i])
@@ -90,8 +90,8 @@ func caseClause(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.List[i])
 		}
 	}
-	fmt.Fprintf(w, "%s%s├── Colon = %s\n", parentPrefix, prefixes[1], fs.Position(node.Colon))
-	fmt.Fprintf(w, "%s%s└── Body (length=%d)\n", parentPrefix, prefixes[1], len(node.Body))
+	fmt.Fprintf(w, "%s%s%sColon = %s\n", parentPrefix, prefixes[1], getMiddlePrefix(), fs.Position(node.Colon))
+	fmt.Fprintf(w, "%s%s%sBody (length=%d)\n", parentPrefix, prefixes[1], getTailPrefix(), len(node.Body))
 	for i := range node.Body {
 		if i < len(node.Body)-1 {
 			tree(w, fs, parentPrefix+prefixes[1]+tailLine, middlePrefixes, node.Body[i])
@@ -103,13 +103,13 @@ func caseClause(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []
 
 func commClause(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.CommClause) {
 	fmt.Fprintf(w, "%s%sCommClause\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── Case = %s\n", parentPrefix, prefixes[1], fs.Position(node.Case))
-	fmt.Fprintf(w, "%s%s├── Comm\n", parentPrefix, prefixes[1])
+	fmt.Fprintf(w, "%s%s%sCase = %s\n", parentPrefix, prefixes[1], getMiddlePrefix(), fs.Position(node.Case))
+	fmt.Fprintf(w, "%s%s%sComm\n", parentPrefix, prefixes[1], getMiddlePrefix())
 	if node.Comm != nil {
 		tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Comm)
 	}
-	fmt.Fprintf(w, "%s%s├── Colon = %v\n", parentPrefix, prefixes[1], node.Colon)
-	fmt.Fprintf(w, "%s%s└── Body (length=%d)\n", parentPrefix, prefixes[1], len(node.Body))
+	fmt.Fprintf(w, "%s%s%sColon = %v\n", parentPrefix, prefixes[1], getMiddlePrefix(), node.Colon)
+	fmt.Fprintf(w, "%s%s%sBody (length=%d)\n", parentPrefix, prefixes[1], getTailPrefix(), len(node.Body))
 	for i := range node.Body {
 		if i == len(node.Body)-1 {
 			tree(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Body[i])
@@ -121,8 +121,8 @@ func commClause(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []
 
 func ellipsis(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.Ellipsis) {
 	fmt.Fprintf(w, "%s%sEllipsis\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── Ellipsis = %s\n", parentPrefix, prefixes[1], fs.Position(node.Ellipsis))
-	fmt.Fprintf(w, "%s%s└── Elt\n", parentPrefix, prefixes[1])
+	fmt.Fprintf(w, "%s%s%sEllipsis = %s\n", parentPrefix, prefixes[1], getMiddlePrefix(), fs.Position(node.Ellipsis))
+	fmt.Fprintf(w, "%s%s%sElt\n", parentPrefix, prefixes[1], getTailPrefix())
 	if node.Elt != nil {
 		tree(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Elt)
 	}
@@ -130,11 +130,11 @@ func ellipsis(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []st
 
 func field(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.Field) {
 	fmt.Fprintf(w, "%s%sField\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── Doc\n", parentPrefix, prefixes[1])
+	fmt.Fprintf(w, "%s%s%sDoc\n", parentPrefix, prefixes[1], getMiddlePrefix())
 	if node.Doc != nil {
 		tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Doc)
 	}
-	fmt.Fprintf(w, "%s%s├── Names (length=%d)\n", parentPrefix, prefixes[1], len(node.Names))
+	fmt.Fprintf(w, "%s%s%sNames (length=%d)\n", parentPrefix, prefixes[1], getMiddlePrefix(), len(node.Names))
 	for i := range node.Names {
 		if i < len(node.Names)-1 {
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.Names[i])
@@ -142,13 +142,13 @@ func field(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []strin
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Names[i])
 		}
 	}
-	fmt.Fprintf(w, "%s%s├── Type\n", parentPrefix, prefixes[1])
+	fmt.Fprintf(w, "%s%s%sType\n", parentPrefix, prefixes[1], getMiddlePrefix())
 	tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Type)
-	fmt.Fprintf(w, "%s%s├── Tag\n", parentPrefix, prefixes[1])
+	fmt.Fprintf(w, "%s%s%sTag\n", parentPrefix, prefixes[1], getMiddlePrefix())
 	if node.Tag != nil {
 		tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.Tag)
 	}
-	fmt.Fprintf(w, "%s%s└── Comment\n", parentPrefix, prefixes[1])
+	fmt.Fprintf(w, "%s%s%sComment\n", parentPrefix, prefixes[1], getTailPrefix())
 	if node.Comment != nil {
 		tree(w, fs, parentPrefix+prefixes[1]+tailLine, tailPrefixes, node.Comment)
 	}
@@ -156,8 +156,8 @@ func field(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []strin
 
 func fieldList(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.FieldList) {
 	fmt.Fprintf(w, "%s%sFieldList\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── Opening = %s\n", parentPrefix, prefixes[1], fs.Position(node.Opening))
-	fmt.Fprintf(w, "%s%s├── List (length=%d)\n", parentPrefix, prefixes[1], len(node.List))
+	fmt.Fprintf(w, "%s%s%sOpening = %s\n", parentPrefix, prefixes[1], getMiddlePrefix(), fs.Position(node.Opening))
+	fmt.Fprintf(w, "%s%s%sList (length=%d)\n", parentPrefix, prefixes[1], getMiddlePrefix(), len(node.List))
 	for i := range node.List {
 		if i < len(node.List)-1 {
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, middlePrefixes, node.List[i])
@@ -165,14 +165,14 @@ func fieldList(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []s
 			tree(w, fs, parentPrefix+prefixes[1]+middleLine, tailPrefixes, node.List[i])
 		}
 	}
-	fmt.Fprintf(w, "%s%s└── Closing = %s\n", parentPrefix, prefixes[1], fs.Position(node.Closing))
+	fmt.Fprintf(w, "%s%s%sClosing = %s\n", parentPrefix, prefixes[1], getTailPrefix(), fs.Position(node.Closing))
 }
 
 func package2(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.Package) {
 	fmt.Fprintf(w, "%s%sPackage\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── Name = %s\n", parentPrefix, prefixes[1], node.Name)
-	fmt.Fprintf(w, "%s%s├── Scope\n", parentPrefix, prefixes[1])
-	fmt.Fprintf(w, "%s%s├── Imports (length=%d)\n", parentPrefix, prefixes[1], len(node.Imports))
+	fmt.Fprintf(w, "%s%s%sName = %s\n", parentPrefix, prefixes[1], getMiddlePrefix(), node.Name)
+	fmt.Fprintf(w, "%s%s%sScope\n", parentPrefix, prefixes[1], getMiddlePrefix())
+	fmt.Fprintf(w, "%s%s%sImports (length=%d)\n", parentPrefix, prefixes[1], getMiddlePrefix(), len(node.Imports))
 	count := 0
 	for k, v := range node.Imports {
 		if count < len(node.Imports)-1 {
@@ -182,7 +182,7 @@ func package2(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []st
 		}
 		count++
 	}
-	fmt.Fprintf(w, "%s%s└── Files (length = %d)\n", parentPrefix, prefixes[1], len(node.Files))
+	fmt.Fprintf(w, "%s%s%sFiles (length = %d)\n", parentPrefix, prefixes[1], getTailPrefix(), len(node.Files))
 	count = 0
 	for k, v := range node.Files {
 		if count < len(node.Files)-1 {
@@ -196,9 +196,9 @@ func package2(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []st
 
 func object(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node *ast.Object) {
 	fmt.Fprintf(w, "%s%sObject\n", parentPrefix, prefixes[0])
-	fmt.Fprintf(w, "%s%s├── Kind = %s\n", parentPrefix, prefixes[1], node.Kind)
-	fmt.Fprintf(w, "%s%s├── Name = %s\n", parentPrefix, prefixes[1], node.Name)
-	fmt.Fprintf(w, "%s%s├── Decl = %#v\n", parentPrefix, prefixes[1], node.Decl)
-	fmt.Fprintf(w, "%s%s├── Data = %#v\n", parentPrefix, prefixes[1], node.Data)
-	fmt.Fprintf(w, "%s%s└── Type = %#v\n", parentPrefix, prefixes[1], node.Type)
+	fmt.Fprintf(w, "%s%s%sKind = %s\n", parentPrefix, prefixes[1], getMiddlePrefix(), node.Kind)
+	fmt.Fprintf(w, "%s%s%sName = %s\n", parentPrefix, prefixes[1], getMiddlePrefix(), node.Name)
+	fmt.Fprintf(w, "%s%s%sDecl = %#v\n", parentPrefix, prefixes[1], getMiddlePrefix(), node.Decl)
+	fmt.Fprintf(w, "%s%s%sData = %#v\n", parentPrefix, prefixes[1], getMiddlePrefix(), node.Data)
+	fmt.Fprintf(w, "%s%s%sType = %#v\n", parentPrefix, prefixes[1], getTailPrefix(), node.Type)
 }

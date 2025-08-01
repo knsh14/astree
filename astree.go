@@ -7,6 +7,14 @@ import (
 	"io"
 )
 
+// Config holds configuration for tree drawing characters
+type Config struct {
+	MiddlePrefix string
+	TailPrefix   string
+	MiddleLine   string
+	TailLine     string
+}
+
 const (
 	middleLine = "│   "
 	tailLine   = "    "
@@ -15,6 +23,7 @@ const (
 var (
 	middlePrefixes = []string{"├── ", "│   "}
 	tailPrefixes   = []string{"└── ", "    "}
+	currentConfig  *Config
 )
 
 // File prints AST of one file
@@ -26,6 +35,15 @@ func File(w io.Writer, fs *token.FileSet, node *ast.File) error {
 	return nil
 }
 
+// FileWithConfig prints AST of one file with custom tree characters
+func FileWithConfig(w io.Writer, fs *token.FileSet, node *ast.File, config Config) error {
+	if fs == nil {
+		return fmt.Errorf("*token.FileSet is nil")
+	}
+	treeWithConfig(w, fs, "", []string{"", ""}, node, config)
+	return nil
+}
+
 // Packages prints AST of result from go/parser.ParseDir
 func Packages(w io.Writer, fs *token.FileSet, pkgs map[string]*ast.Package) error {
 	if fs == nil {
@@ -34,13 +52,69 @@ func Packages(w io.Writer, fs *token.FileSet, pkgs map[string]*ast.Package) erro
 	count := 0
 	for k, v := range pkgs {
 		if count < len(pkgs)-1 {
-			tree(w, fs, "", []string{middlePrefixes[0] + k + ":", middlePrefixes[1]}, v)
+			tree(w, fs, "", []string{getMiddlePrefixes()[0] + k + ":", getMiddlePrefixes()[1]}, v)
 		} else {
-			tree(w, fs, "", []string{tailPrefixes[0] + k + ":", tailPrefixes[1]}, v)
+			tree(w, fs, "", []string{getTailPrefixes()[0] + k + ":", getTailPrefixes()[1]}, v)
 		}
 		count++
 	}
 	return nil
+}
+
+// PackagesWithConfig prints AST of result from go/parser.ParseDir with custom tree characters
+func PackagesWithConfig(w io.Writer, fs *token.FileSet, pkgs map[string]*ast.Package, config Config) error {
+	if fs == nil {
+		return fmt.Errorf("*token.FileSet is nil")
+	}
+	count := 0
+	for k, v := range pkgs {
+		if count < len(pkgs)-1 {
+			treeWithConfig(w, fs, "", []string{config.MiddlePrefix + k + ":", config.MiddleLine}, v, config)
+		} else {
+			treeWithConfig(w, fs, "", []string{config.TailPrefix + k + ":", config.TailLine}, v, config)
+		}
+		count++
+	}
+	return nil
+}
+
+// helper functions to get current prefixes based on config
+func getMiddlePrefixes() []string {
+	if currentConfig != nil {
+		return []string{currentConfig.MiddlePrefix, currentConfig.MiddleLine}
+	}
+	return middlePrefixes
+}
+
+func getTailPrefixes() []string {
+	if currentConfig != nil {
+		return []string{currentConfig.TailPrefix, currentConfig.TailLine}
+	}
+	return tailPrefixes
+}
+
+// helper function to get the middle prefix character
+func getMiddlePrefix() string {
+	if currentConfig != nil {
+		return currentConfig.MiddlePrefix
+	}
+	return "├── "
+}
+
+// helper function to get the tail prefix character
+func getTailPrefix() string {
+	if currentConfig != nil {
+		return currentConfig.TailPrefix
+	}
+	return "└── "
+}
+
+// treeWithConfig is the same as tree but sets the currentConfig
+func treeWithConfig(w io.Writer, fs *token.FileSet, parentPrefix string, prefixes []string, node ast.Node, config Config) {
+	oldConfig := currentConfig
+	currentConfig = &config
+	tree(w, fs, parentPrefix, prefixes, node)
+	currentConfig = oldConfig
 }
 
 // Node prints AST node
